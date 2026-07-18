@@ -1,0 +1,9 @@
+# Never commit the real config — it holds your Plex token.
+config.env
+/etc/cd-ripper.env
+
+# Runtime artifacts
+history.json
+*.log
+__pycache__/
+*.pyc

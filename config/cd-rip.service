@@ -1,0 +1,9 @@
+[Unit]
+Description=CD Rip (runs to completion, decoupled from udev timeout)
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/rip-cd.sh
+# Type=simple has no runtime limit — the rip runs as long as it needs.
+Nice=5

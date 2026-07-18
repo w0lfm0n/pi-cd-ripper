@@ -1,0 +1,17 @@
+[Unit]
+Description=CD/Vinyl Ripper web UI (Flask)
+After=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/ripper
+# Deployment config (MUSIC_DIR, PLEX_URL, PLEX_TOKEN, PLEX_SECTION, NOTIFY_URL).
+# The leading '-' means "don't fail if the file is missing".
+EnvironmentFile=-/etc/cd-ripper.env
+ExecStart=/usr/bin/python3 /opt/ripper/app.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

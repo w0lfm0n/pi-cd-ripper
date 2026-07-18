@@ -1,0 +1,1 @@
+ACTION=="change", KERNEL=="sr0", ENV{DISK_MEDIA_CHANGE}=="1", RUN+="/usr/bin/systemctl start --no-block cd-rip.service"
