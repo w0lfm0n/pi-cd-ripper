@@ -196,6 +196,30 @@ def get_album_art(album_name):
         if r.returncode == 0 and r.stdout:
             album_art_cache[album_name] = (r.stdout, 'image/jpeg')
             return r.stdout, 'image/jpeg'
+    # Nested Artist/Album/ layout (Lidarr-organised folders have no cover at the top
+    # level) — descend one level and use the first album subfolder's cover / embedded art.
+    for sub in sorted(glob.glob(os.path.join(album_path, '*'))):
+        if not os.path.isdir(sub):
+            continue
+        for name in ['cover.jpg', 'folder.jpg', 'front.jpg', 'Cover.jpg', 'cover.png']:
+            p = os.path.join(sub, name)
+            if os.path.exists(p):
+                data = open(p, 'rb').read()
+                ctype = 'image/png' if name.endswith('.png') else 'image/jpeg'
+                album_art_cache[album_name] = (data, ctype)
+                return data, ctype
+        subimgs = sorted(glob.glob(os.path.join(sub, '*.jpg')) + glob.glob(os.path.join(sub, '*.png')))
+        if subimgs:
+            ctype = 'image/png' if subimgs[0].lower().endswith('.png') else 'image/jpeg'
+            data = open(subimgs[0], 'rb').read()
+            album_art_cache[album_name] = (data, ctype)
+            return data, ctype
+        subflacs = glob.glob(os.path.join(sub, '*.flac'))
+        if subflacs:
+            r = subprocess.run(['metaflac', '--export-picture-to=-', subflacs[0]], capture_output=True)
+            if r.returncode == 0 and r.stdout:
+                album_art_cache[album_name] = (r.stdout, 'image/jpeg')
+                return r.stdout, 'image/jpeg'
     album_art_cache[album_name] = (None, None)
     return None, None
 
